@@ -1,0 +1,15 @@
+[package]
+name = "gitsync"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+clap = { version = "4.4.8", features = ["derive"] }
+rust-ini = "0.20.0"
+
+[dev-dependencies]
+test_dir = { git = "https://github.com/Wasabi375/test_dir.git" }
+fs_extra = "1.3"
