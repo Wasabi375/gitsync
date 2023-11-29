@@ -12,6 +12,7 @@
 
 // #![deny(missing_docs)]
 // TODO reenable missing docs as error
+// TODO change out anyhow for thiserror
 
 use anyhow::{bail, Context, Result};
 use ini::Ini;
@@ -131,6 +132,23 @@ impl Repository {
         Ok(repo)
     }
 
+    pub fn find() -> Option<Repository> {
+        Self::find_from(".")
+    }
+
+    pub fn find_from(path: impl AsRef<Path>) -> Option<Repository> {
+        let mut current = Some(path.as_ref());
+        while let Some(dir) = current {
+            let git = dir.join(".git");
+            if git.exists() && git.is_dir() {
+                // TODO better error handling
+                return Some(Self::new(dir).ok()?);
+            }
+            current = dir.parent()
+        }
+        None
+    }
+
     fn default_config() -> Ini {
         let mut config = Ini::new();
         config
@@ -231,5 +249,14 @@ mod test {
 
         drop(repo);
         Repository::new(repo_path.root()).expect("could not open nearly created repo");
+    }
+
+    #[test]
+    fn find_and_open_project_repository() {
+        for start_path in &[".", "./src", "./test_data/", "./src/lib.rs", "./Cargo.toml"] {
+            Repository::find_from(start_path).expect(&format!(
+                "Could not find git repo staring at {start_path:?}"
+            ));
+        }
     }
 }
